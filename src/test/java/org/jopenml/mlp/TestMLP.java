@@ -2,6 +2,8 @@ package org.jopenml.mlp;
 
 import java.util.Arrays;
 
+import org.jopenml.mlp.activationFunctions.ActivationFunction;
+import org.jopenml.mlp.activationFunctions.TangensHyperbolicus;
 import org.junit.Test;
 
 public class TestMLP {

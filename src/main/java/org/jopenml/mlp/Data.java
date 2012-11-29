@@ -1,5 +1,7 @@
 package org.jopenml.mlp;
 
+import org.jopenml.mlp.activationFunctions.ActivationFunction;
+
 public abstract class Data {
 
 	private enum Use {TRAINING, TEST, NOT_USED};

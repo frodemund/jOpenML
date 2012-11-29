@@ -3,6 +3,8 @@ package org.jopenml.mlp;
 import java.io.Serializable;
 import java.util.Collection;
 
+import org.jopenml.mlp.activationFunctions.ActivationFunction;
+
 /**
  * This class represents the MLP and makes heavy use of the class {@link Layer}.
  */

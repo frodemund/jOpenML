@@ -3,6 +3,8 @@ package org.jopenml.mlp;
 import java.io.Serializable;
 import java.util.Arrays;
 
+import org.jopenml.mlp.activationFunctions.ActivationFunction;
+
 /**
  * This object represents a layer of the neural network.
  */
