@@ -1,4 +1,4 @@
-package org.jopenml.mlp;
+package org.jopenml.mlp.learnRateStrategies;
 
 /**
  * This object adjusts the learning rate with a static factor and implements {@link Eta}.
