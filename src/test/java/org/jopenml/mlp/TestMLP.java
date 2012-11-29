@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 import org.jopenml.mlp.activationFunctions.ActivationFunction;
 import org.jopenml.mlp.activationFunctions.TangensHyperbolicus;
+import org.jopenml.mlp.layers.Layer;
 import org.junit.Test;
 
 public class TestMLP {
@@ -74,15 +75,15 @@ public class TestMLP {
 			double[] bias, boolean autoencoder) {
 		// inputLayer erzeugen
 		layer = new Layer[hiddenLayers.length + 2];
-		layer[0] = new Layer(null, inputNeurons, functions[0], 0);
+		layer[0] = new Layer(null, inputNeurons, functions[0]);
 		
 		// hiddenLayer erzeugen
 		for (int i = 0; i < hiddenLayers.length; i++) {
-			layer[i + 1] = new Layer(layer[i], hiddenLayers[i], functions[i], bias[i]);
+			layer[i + 1] = new Layer(layer[i], hiddenLayers[i], functions[i]);
 		}
 		
 		// outputLayer erzeugen
-		layer[layer.length - 1] = new Layer(layer[layer.length - 2], outputNeurons, functions[functions.length - 1], 0);
+		layer[layer.length - 1] = new Layer(layer[layer.length - 2], outputNeurons, functions[functions.length - 1]);
 		
 		if (!autoencoder) {
 			return;
@@ -118,6 +119,7 @@ public class TestMLP {
 			for (int h = 0; h < target.length; h++) {
 				errVec[h] = out[h] - target[h];
 			}
+			System.out.println(errVec[0] + " | " + errVec[1]);
 			
 			// Fehler zurückpropagieren
 			layer[layer.length - 1].backPropagate(errVec);

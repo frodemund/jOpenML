@@ -1,4 +1,4 @@
-package org.jopenml.mlp;
+package org.jopenml.mlp.layers;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -8,12 +8,12 @@ import org.jopenml.mlp.activationFunctions.ActivationFunction;
 /**
  * This object represents a layer of the neural network.
  */
-public class Layer
+public class BiasedLayer
 		implements Serializable {
 	
 	private static final long serialVersionUID = -4607204450973284028L;
 	
-	private Layer prevLayer;
+	private BiasedLayer prevLayer;
 	
 	private double[][] weightMatrix;
 	private double[][] gradientMatrix;
@@ -35,7 +35,7 @@ public class Layer
 	 * @param bias The bias
 	 * @throws BadConfigException Is thrown in case of incorrect configuration
 	 */
-	public Layer(Layer prevLayer, int neurons, ActivationFunction function, double bias) {
+	public BiasedLayer(BiasedLayer prevLayer, int neurons, ActivationFunction function, double bias) {
 		
 		neurons++;
 		
@@ -68,21 +68,19 @@ public class Layer
 	}
 	
 	/**
-	 * This function is to be used at the inout layer and sets the input data.
+	 * This function is to be used at the input layer and sets the input data.
 	 * 
 	 * @param input The input vector, that needs the same dimension as the layer.
 	 * @throws BadConfigException Is thrown in case of wrong configuration
 	 */
-	public boolean setInput(double[] input) {
+	public void setInput(double[] input) {
 		if (output.length - 1 != input.length) {
-			return false;
+			throw new IllegalArgumentException("Provided array has wron length. (is " + input.length
+					+ ", but should be " + (output.length - 1) + ").");
 		}
 		
-		this.input = input;
-		
+		input = Arrays.copyOf(input, input.length);
 		output = Arrays.copyOf(input, output.length);
-		output[output.length - 1] = 0;
-		return true;
 	}
 	
 	/**
@@ -256,15 +254,6 @@ public class Layer
 	}
 	
 	/**
-	 * Returns the WeightMatrix of the connection of this layer to the previous one.
-	 * 
-	 * @return the connecting WeightMatrix.
-	 */
-	public double[][] getWeightMatrix() {
-		return weightMatrix;
-	}
-	
-	/**
 	 * This Function makes the layer to an autoencoder.
 	 * 
 	 * @param value This value will be used as input to all neurons of the previous layer and as targetvector.
@@ -285,22 +274,24 @@ public class Layer
 		// Input Data
 		final double[] lastLayerOutput = prevLayer.makeAutoencoder(value, maxIterations, upperBound, eta);
 		
-		// Remove tha layer
-		final Layer prevLayer = this.prevLayer.prevLayer;
+		// Remove the layer
+		final BiasedLayer prevLayer = this.prevLayer.prevLayer;
 		this.prevLayer.prevLayer = null;
 		
 		// Add the new layer
-		final Layer additionalLayer = new Layer(this, this.prevLayer.getSize() - 1,
+		final BiasedLayer additionalLayer = new BiasedLayer(this, this.prevLayer.getSize() - 1,
 				this.prevLayer.getActivationFunction(), this.prevLayer.getBias());
 		
 		final double[] firstLayerinput = Arrays.copyOf(lastLayerOutput, lastLayerOutput.length - 1);
 		
-		// use output ans new input
-		if (!this.prevLayer.setInput(firstLayerinput)) {
-			System.out.println("Lenght of lastLayerOutput: " + lastLayerOutput.length);
+		if (prevLayer.getSize() - 1 != firstLayerinput.length) {
+			throw new IllegalStateException("Invalid input layer size!");
 		}
 		
-		// train Online
+		// use output as new input
+		prevLayer.setInput(firstLayerinput);
+		
+		// train online
 		double out[] = null;
 		final double[] errVec = new double[additionalLayer.getSize()];
 		double overallError;
@@ -324,13 +315,17 @@ public class Layer
 			// Backpropagate the error
 			additionalLayer.backPropagate(errVec);
 			
-			// Adjust the weights
+			// adjust weights
 			additionalLayer.update(eta, 0);
 		}
 		
-		// Restore the layer
+		// restore layer
 		this.prevLayer.prevLayer = prevLayer;
 		
 		return getOutput();
+	}
+	
+	public void setPreviousLayer(BiasedLayer layer) {
+		prevLayer = layer;
 	}
 }
