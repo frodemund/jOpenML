@@ -109,7 +109,6 @@ public class MLP
 					outputLayer.update(eta);
 				}
 			}
-			
 		}
 		return runTest(dataCollection);
 	}

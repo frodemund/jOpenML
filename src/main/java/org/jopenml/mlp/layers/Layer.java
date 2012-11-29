@@ -96,7 +96,7 @@ public class Layer
 		layerInput = prevLayer.getOutput();
 		
 		// Generate the output
-		for (int h = 0; h < layerOutput.length - 1; h++) {
+		for (int h = 0; h < layerOutput.length; h++) {
 			double neuronOut = 0;
 			
 			// Multiply every output of the last Layer with the corresponding matrix and add it.
@@ -132,7 +132,7 @@ public class Layer
 			return;
 		}
 		alterGradient(error);
-		prevLayer.backPropagate(compurePreviouseLayerError(error));
+		prevLayer.backPropagate(compurePreviousLayerError(error));
 	}
 	
 	private void alterGradient(double[] error) {
@@ -144,15 +144,15 @@ public class Layer
 		}
 	}
 	
-	private double[] compurePreviouseLayerError(double[] error) {
+	private double[] compurePreviousLayerError(double[] error) {
 		final double[] preLayerError = new double[prevLayer.getSize()];
-		// generate preLayerError
+		
 		for (int i = 0; i < prevLayer.getSize(); i++) {
 			for (int h = 0; h < error.length; h++) {
 				preLayerError[i] += error[h] * weightMatrix[h][i];
 			}
 			
-			preLayerError[i] *= prevLayer.activationFunction.derivation(prevLayer.getLayerInput()[i]);
+			preLayerError[i] *= prevLayer.activationFunction.derivation(prevLayer.layerOutput[i]);
 		}
 		return preLayerError;
 	}

@@ -1,7 +1,6 @@
 package org.jopenml.mlp;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -23,37 +22,41 @@ public class XORTest {
 	public void initMLP() {
 		final List<Layer> layers = new ArrayList<>();
 		layers.add(new Layer(null, 2, new Sigmoid()));
-		layers.add(new Layer(layers.get(0), 1, new Sigmoid()));
+		layers.add(new Layer(layers.get(0), 4, new Sigmoid()));
+		layers.add(new Layer(layers.get(1), 1, new Sigmoid()));
 		
 		mlp = new MLP(layers);
 	}
 	
 	@Test
 	public void testRunOnline() {
-		double err;
-		while ((err = mlp.runOnline(data, 0.1, 0)) > .001) {
-			System.err.println(err);
+		int iterations = 0;
+		while (mlp.runOnline(data, .01, 0) > .0000001) {
+			if (++iterations == 1_000_000) {
+				break;
+			}
 		}
+		
 		testMapping(data, mlp);
 	}
 	
 	@Test
 	public void testRunBatch() {
-		double err;
-		while ((err = mlp.runBatch(data, 4, 0.001, 0)) > .001) {
-			System.err.println(err);
+		int iterations = 0;
+		while (mlp.runBatch(data, data.size(), .01, 0) > .0000001) {
+			if (++iterations == 1_000_000) {
+				break;
+			}
 		}
+		
 		testMapping(data, mlp);
 	}
 	
 	private void testMapping(Collection<Datum> data, MLP mlp) {
+		System.err.println("testing");
 		for (final Datum datum : data) {
 			final double[] result = mlp.classify(datum.getData());
-			if (Arrays.equals(result, datum.getTarget())) {
-				System.err.print("Correct - ");
-			}
-			
-			System.err.println(result[0]);
+			System.err.println("Target: " + datum.getTarget()[0] + " | Result: " + result[0]);
 		}
 	}
 	
