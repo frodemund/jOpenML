@@ -15,15 +15,14 @@ public class Layer
 	
 	private final Layer prevLayer;
 	
-	private double[][] weightMatrix;
-	private double[][] gradientMatrix;
-	private double[][] lastGradientMatrix;
+	private final double[][] weightMatrix;
+	private final double[][] gradientMatrix;
+	private final double[][] lastGradientMatrix;
 	
-	private ActivationFunction function;
+	private final ActivationFunction activationFunction;
 	
-	private double[] output;
-	double[] input = null;
-	private double[] layerInput;
+	private double[] layerOutput;
+	private double[] layerInput;;
 	
 	/**
 	 * Constructor; Is initialized with the previous layer, activation function number of neurons and the bias
@@ -41,12 +40,15 @@ public class Layer
 		}
 		
 		// Initializing variables
-		this.function = function;
-		output = new double[neurons];
+		layerOutput = new double[neurons];
 		layerInput = new double[neurons];
+		activationFunction = function;
 		
 		if (prevLayer == null) {
 			this.prevLayer = null;
+			weightMatrix = null;
+			gradientMatrix = null;
+			lastGradientMatrix = null;
 			return;
 		}
 		
@@ -69,13 +71,12 @@ public class Layer
 	 * @param input The input vector, that needs the same dimension as the layer.
 	 */
 	public void setInput(double[] input) {
-		if (output.length != input.length) {
+		if (layerOutput.length != input.length) {
 			throw new IllegalArgumentException("Provided array has wron length. (is " + input.length
-					+ ", but should be " + output.length + ").");
+					+ ", but should be " + layerOutput.length + ").");
 		}
 		
-		this.input = Arrays.copyOf(input, input.length);
-		output = Arrays.copyOf(input, output.length);
+		layerInput = Arrays.copyOf(input, layerInput.length);
 	}
 	
 	/**
@@ -88,28 +89,26 @@ public class Layer
 	public double[] getOutput() {
 		if (prevLayer == null) {
 			// beak condition
-			output = layerInput;
-			return output;
+			layerOutput = layerInput;
+			return layerOutput;
 		}
 		
-		input = prevLayer.getOutput();
+		layerInput = prevLayer.getOutput();
 		
 		// Generate the output
-		for (int h = 0; h < output.length - 1; h++) {
-			// Reset
-			output[h] = 0;
+		for (int h = 0; h < layerOutput.length - 1; h++) {
+			double neuronOut = 0;
 			
 			// Multiply every output of the last Layer with the corresponding matrix and add it.
-			for (int i = 0; i < input.length; i++) {
-				output[h] += input[i] * weightMatrix[h][i];
+			for (int i = 0; i < layerInput.length; i++) {
+				neuronOut += layerInput[i] * weightMatrix[h][i];
 			}
 			
-			getLayerInput()[h] = output[h];
 			// Use the activation function on the sum.
-			output[h] = function.compute(output[h]);
+			layerOutput[h] = activationFunction.compute(neuronOut);
 		}
 		
-		return output;
+		return layerOutput;
 	}
 	
 	/**
@@ -118,7 +117,7 @@ public class Layer
 	 * @return Number of neurons
 	 */
 	public int getSize() {
-		return output.length;
+		return layerOutput.length;
 	}
 	
 	/**
@@ -132,27 +131,30 @@ public class Layer
 			// break condition
 			return;
 		}
-		
-		// init
-		final double[] preLayerError = new double[prevLayer.getSize()];
-		
+		alterGradient(error);
+		prevLayer.backPropagate(compurePreviouseLayerError(error));
+	}
+	
+	private void alterGradient(double[] error) {
 		// alter gradient
 		for (int i = 0; i < gradientMatrix.length; i++) {
-			for (int h = 0; h < prevLayer.output.length; h++) {
-				gradientMatrix[i][h] += error[i] * prevLayer.output[h];
+			for (int h = 0; h < prevLayer.layerOutput.length; h++) {
+				gradientMatrix[i][h] += error[i] * prevLayer.layerOutput[h];
 			}
 		}
-		
+	}
+	
+	private double[] compurePreviouseLayerError(double[] error) {
+		final double[] preLayerError = new double[prevLayer.getSize()];
 		// generate preLayerError
 		for (int i = 0; i < prevLayer.getSize(); i++) {
 			for (int h = 0; h < error.length; h++) {
 				preLayerError[i] += error[h] * weightMatrix[h][i];
 			}
 			
-			preLayerError[i] *= prevLayer.function.derivation(prevLayer.getLayerInput()[i]);
+			preLayerError[i] *= prevLayer.activationFunction.derivation(prevLayer.getLayerInput()[i]);
 		}
-		
-		prevLayer.backPropagate(preLayerError);
+		return preLayerError;
 	}
 	
 	/**
@@ -165,7 +167,7 @@ public class Layer
 			return;
 		}
 		
-		for (int i = 0; i < output.length; i++) {
+		for (int i = 0; i < layerOutput.length; i++) {
 			for (int h = 0; h < prevLayer.getSize(); h++) {
 				weightMatrix[i][h] -= eta * gradientMatrix[i][h];
 				gradientMatrix[i][h] = 0;
@@ -189,7 +191,7 @@ public class Layer
 		}
 		final double negMomentum = 1 - momentum;
 		
-		for (int i = 0; i < output.length; i++) {
+		for (int i = 0; i < layerOutput.length; i++) {
 			for (int h = 0; h < prevLayer.getSize(); h++) {
 				lastGradientMatrix[i][h] = eta
 						* (negMomentum * gradientMatrix[i][h] + momentum * lastGradientMatrix[i][h]);
@@ -217,7 +219,7 @@ public class Layer
 			buffer.append("\t[" + i + "]");
 		}
 		
-		for (int i = 0; i < output.length; i++) {
+		for (int i = 0; i < layerOutput.length; i++) {
 			buffer.append("\nNeuron [" + i + "]");
 			for (int h = 0; h < prevLayer.getSize(); h++) {
 				buffer.append("\t" + weightMatrix[i][h]);
@@ -232,7 +234,7 @@ public class Layer
 	 * @return The activation function, that is used in this layer.
 	 */
 	public ActivationFunction getActivationFunction() {
-		return function;
+		return activationFunction;
 	}
 	
 	// /**

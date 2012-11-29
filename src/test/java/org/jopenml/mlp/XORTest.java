@@ -31,9 +31,8 @@ public class XORTest {
 	@Test
 	public void testRunOnline() {
 		double err;
-		while ((err = mlp.runOnline(data, 0.001, 0)) > .001) {
+		while ((err = mlp.runOnline(data, 0.1, 0)) > .001) {
 			System.err.println(err);
-			break;
 		}
 		testMapping(data, mlp);
 	}
@@ -43,7 +42,6 @@ public class XORTest {
 		double err;
 		while ((err = mlp.runBatch(data, 4, 0.001, 0)) > .001) {
 			System.err.println(err);
-			break;
 		}
 		testMapping(data, mlp);
 	}
@@ -63,12 +61,12 @@ public class XORTest {
 		final List<Datum> data = new ArrayList<>();
 		
 		final double[] target = new double[] { 1 };
-		data.add(new Datum(new double[] { 0, 0 }, target));
+		data.add(new Datum(new double[] { 1, 0 }, target));
 		data.add(new Datum(new double[] { 0, 1 }, target));
 		
-		// target[0] = 0;
-		// data.add(new Datum(new double[] { 1, 0 }, target));
-		// data.add(new Datum(new double[] { 1, 1 }, target));
+		target[0] = 0;
+		data.add(new Datum(new double[] { 0, 0 }, target));
+		data.add(new Datum(new double[] { 1, 1 }, target));
 		
 		return data;
 	}

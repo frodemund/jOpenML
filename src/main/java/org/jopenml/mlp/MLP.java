@@ -43,11 +43,11 @@ public class MLP
 		
 		final double[] errVec = new double[outputLayer.getSize()];
 		
-		for (final Datum theData : dataCollection) {
-			final double[] targetValues = theData.getTarget();
+		for (final Datum datum : dataCollection) {
+			final double[] targetValues = datum.getTarget();
 			
 			// provide data
-			inputLayer.setInput(theData.getData());
+			inputLayer.setInput(datum.getData());
 			
 			// Calculate the output
 			final double[] out = outputLayer.getOutput();
