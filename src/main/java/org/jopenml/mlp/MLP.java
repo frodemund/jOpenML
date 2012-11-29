@@ -93,6 +93,7 @@ public class MLP
 			// Sets the input data
 			if (!layer[0].setInput(theData.getData())) {
 				System.out.println("Can't set input data!");
+				continue;
 			}
 			
 			// Calculate the output
@@ -150,6 +151,7 @@ public class MLP
 			// Sets the input data
 			if (!layer[0].setInput(theData.getData())) {
 				System.out.println("Can't set input data!");
+				continue;
 			}
 			
 			// Calculate the output
