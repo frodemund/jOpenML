@@ -2,11 +2,14 @@ package org.jopenml.mlp;
 
 import java.util.Arrays;
 
+import org.junit.Test;
+
 public class TestMLP {
 	
 	protected static Layer[] layer;
 	
-	public static void main(String[] args) {
+	@Test
+	public void strangeMasterTest() {
 		System.out.print("Erstelle neues MLP...");
 		final int[] hL = { 2 };
 		final ActivationFunction[] f = new ActivationFunction[3];
@@ -50,23 +53,22 @@ public class TestMLP {
 		double error = 1;
 		while (error > 0.00001) {
 			error = runOnline(target, inputValues, 0.01);
-			System.out.println("Der Fehler ist: " + error + "; Der TestFehler: " + runTest(ttarget, tinputValues));
 		}
 		
-		double asd[];
+		double output[];
 		
 		// Eingabedaten setzen
 		layer[0].setInput(inputValues[1]);
 		
 		// Ausgabe berechnen
-		asd = layer[layer.length - 1].getOutput();
+		output = layer[layer.length - 1].getOutput();
 		
-		System.out.println("\nDas Ergebnis ist: " + asd[0] + " | " + asd[1] + " mit " + inputValues[1][0] + " | "
+		System.out.println("\nDas Ergebnis ist: " + output[0] + " | " + output[1] + " mit " + inputValues[1][0] + " | "
 				+ inputValues[1][1]);
 		
 	}
 	
-	public static void MLP(int inputNeurons, int outputNeurons, int[] hiddenLayers, ActivationFunction[] functions,
+	public void MLP(int inputNeurons, int outputNeurons, int[] hiddenLayers, ActivationFunction[] functions,
 			double[] bias, boolean autoencoder) {
 		// inputLayer erzeugen
 		layer = new Layer[hiddenLayers.length + 2];
@@ -88,7 +90,7 @@ public class TestMLP {
 		layer[layer.length - 1].makeAutoencoder(0.5, 1000, 0.00001, 0.2);
 	}
 	
-	public static double runOnline(int[] intTarget, double[][] input, double eta) {
+	public double runOnline(int[] intTarget, double[][] input, double eta) {
 		if (layer == null) {
 			return 0;
 		}
@@ -126,7 +128,7 @@ public class TestMLP {
 		return runTest(intTarget, input);
 	}
 	
-	public static double runBatch(int[] intTarget, double[][] input, double eta) {
+	public double runBatch(int[] intTarget, double[][] input, double eta) {
 		if (layer == null) {
 			return 0;
 		}
@@ -170,7 +172,7 @@ public class TestMLP {
 	 * @param dataCollection die Daten, die fuer den Test verwendet werden sollen
 	 * @return den Testfehler
 	 */
-	public static double runTest(int[] intTarget, double[][] input) {
+	public double runTest(int[] intTarget, double[][] input) {
 		double err = 0;
 		double[] out;
 		final double[] target = new double[layer[layer.length - 1].getSize()];
@@ -196,15 +198,6 @@ public class TestMLP {
 		
 		// Mittelwert berechnen und Fehler zurückgeben
 		return 0.5 * err / intTarget.length;
-	}
-	
-	public static String toSchtring() {
-		final StringBuffer buffer = new StringBuffer();
-		for (int i = 0; i < layer.length; i++) {
-			buffer.append("Layer " + i);
-			buffer.append("\n" + layer[i].toString() + "\n");
-		}
-		return buffer.toString();
 	}
 	
 }
