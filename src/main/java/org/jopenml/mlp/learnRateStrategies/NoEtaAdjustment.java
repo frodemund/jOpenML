@@ -1,4 +1,4 @@
-package org.jopenml.mlp;
+package org.jopenml.mlp.learnRateStrategies;
 /**
  * Ths Object simply returns the learning rate without any modifications 
   */

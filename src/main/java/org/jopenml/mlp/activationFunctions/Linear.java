@@ -1,17 +1,18 @@
-package org.jopenml.mlp;
+package org.jopenml.mlp.activationFunctions;
+
 
 /**
- * This object implements the hyperbolic tangent (value range [-1,1]) and the interface {@link ActivationFunction}.
-  */
-public class TangensHyperbolicus implements ActivationFunction {
+ * This {@link ActivationFunction} simply returns the intput value. Therefor the derivation is always 1.
+ */
+public class Linear implements ActivationFunction{
 
-	private static final long serialVersionUID = -7432193650916186201L;
-	
+	private static final long serialVersionUID = -7102325169146600623L;
+
 	/**Computes the corresponding value of the function to the parameter x
 	 * @return the function's value with x
 	 */
 	public double compute(double x) {
-		return Math.tanh(x);
+		return x;
 	}
 
 	/**
@@ -19,8 +20,7 @@ public class TangensHyperbolicus implements ActivationFunction {
 	 * @return the function's derivation with value x.
 	 */
 	public double derivation(double x) {
-		double v = Math.tanh(x);
-		return 1 - v * v;
+		return 1;
 	}
 
 	/**
@@ -28,7 +28,7 @@ public class TangensHyperbolicus implements ActivationFunction {
 	 * @return the name
 	 */
 	public String toString() {
-		return "Tangens hyperbolicus";
+		return "Linear";
 	}
 
 }

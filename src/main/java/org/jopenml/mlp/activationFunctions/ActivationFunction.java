@@ -1,6 +1,7 @@
-package org.jopenml.mlp;
+package org.jopenml.mlp.activationFunctions;
 
 import java.io.Serializable;
+
 /**
  * This interface makes the ActivationFunction modular and is implemented by {@link Linear}, {@link Sigmoid}
  * and {@link TangensHyperbolicus}.
