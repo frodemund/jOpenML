@@ -19,21 +19,19 @@ public class MLP
 	public MLP(List<Layer> layers) {
 		inputLayer = layers.get(0);
 		outputLayer = layers.get(layers.size() - 1);
-		
-		inputLayer.setPreviousLayer(null);
 	}
 	
-	/**
-	 * This function trains the MLP as autoencoder by using the function
-	 * {@link Layer#makeAutoencoder(double, int, double, double) makeAutoencoder}
-	 * 
-	 * @param maxIterations Break condition for the training. Training will stop if maxIterations is reached.
-	 * @param maxError If the net's error falls below this border, training will be aborted.
-	 * @param eta the learning rate
-	 */
-	public void makeAutoencoder(int maxIterations, double maxError, double eta) {
-		outputLayer.makeAutoencoder(Math.random(), maxIterations, maxError, eta);
-	}
+	// /**
+	// * This function trains the MLP as autoencoder by using the function
+	// * {@link Layer#makeAutoencoder(double, int, double, double) makeAutoencoder}
+	// *
+	// * @param maxIterations Break condition for the training. Training will stop if maxIterations is reached.
+	// * @param maxError If the net's error falls below this border, training will be aborted.
+	// * @param eta the learning rate
+	// */
+	// public void makeAutoencoder(int maxIterations, double maxError, double eta) {
+	// outputLayer.makeAutoencoder(Math.random(), maxIterations, maxError, eta);
+	// }
 	
 	/**
 	 * This function performs the online calculation with the the network.
