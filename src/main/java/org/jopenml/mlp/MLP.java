@@ -21,27 +21,34 @@ public class MLP
 		outputLayer = layers.get(layers.size() - 1);
 	}
 	
-	// /**
-	// * This function trains the MLP as autoencoder by using the function
-	// * {@link Layer#makeAutoencoder(double, int, double, double) makeAutoencoder}
-	// *
-	// * @param maxIterations Break condition for the training. Training will stop if maxIterations is reached.
-	// * @param maxError If the net's error falls below this border, training will be aborted.
-	// * @param eta the learning rate
-	// */
-	// public void makeAutoencoder(int maxIterations, double maxError, double eta) {
-	// outputLayer.makeAutoencoder(Math.random(), maxIterations, maxError, eta);
-	// }
-	
 	/**
 	 * This function performs the online calculation with the the network.
 	 * 
 	 * @param dataCollection A collection of the type {@link Datum} with input and target values.
 	 * @param eta The learning rate to be used.
 	 */
-	public double runOnline(Collection<Datum> dataCollection, double eta, double momentum) {
+	public double trainOnline(Collection<Datum> dataCollection, double eta, double momentum) {
+		train(dataCollection, 1, eta, momentum);
+		return runTest(dataCollection);
+	}
+	
+	/**
+	 * This function performs the batch calculation with the Network
+	 * 
+	 * @param dataCollection A collection of the type {@link Datum}a with input and target values.
+	 * @param eta The learning rate to be used.
+	 * @return The Training error computed by the function {@link #runTest(Collection)}. In case of an error returns 0.
+	 */
+	
+	public double trainBatch(Collection<Datum> dataCollection, int batchSize, double eta, double momentum) {
 		
+		train(dataCollection, batchSize, eta, momentum);
+		return runTest(dataCollection);
+	}
+	
+	private void train(Collection<Datum> dataCollection, int batchSize, double eta, double momentum) {
 		final double[] errVec = new double[outputLayer.getSize()];
+		int iterations = 0;
 		
 		for (final Datum datum : dataCollection) {
 			final double[] targetValues = datum.getTarget();
@@ -58,48 +65,8 @@ public class MLP
 						* outputLayer.getActivationFunction().derivation(outputLayer.getLayerInput()[h]);
 			}
 			
-			// Error backpropagation
+			// Error propagation
 			outputLayer.backPropagate(errVec);
-			
-			// Adjust the weights
-			if (momentum > 0) {
-				outputLayer.update(eta, momentum);
-			} else {
-				outputLayer.update(eta);
-			}
-			
-		}
-		
-		return runTest(dataCollection);
-	}
-	
-	/**
-	 * This function performs the batch calculation with the Network
-	 * 
-	 * @param dataCollection A collection of the type {@link Datum}a with input and target values.
-	 * @param eta The learning rate to be used.
-	 * @return The Training error computed by the function {@link #runTest(Collection)}. In case of an error returns 0.
-	 */
-	
-	public double runBatch(Collection<Datum> dataCollection, int batchSize, double eta, double momentum) {
-		
-		final double[] errVec = new double[outputLayer.getSize()];
-		int iterations = 0;
-		
-		for (final Datum theData : dataCollection) {
-			final double[] targetValues = theData.getTarget();
-			
-			// provide data
-			inputLayer.setInput(theData.getData());
-			
-			// Calculate the output
-			final double[] out = outputLayer.getOutput();
-			
-			// Calculates the error of the output layer
-			for (int h = 0; h < out.length; h++) {
-				errVec[h] = (out[h] - targetValues[h])
-						* outputLayer.getActivationFunction().derivation(outputLayer.getLayerInput()[h]);
-			}
 			
 			if (++iterations % batchSize == 0) {
 				// Adjust the weights
@@ -110,7 +77,6 @@ public class MLP
 				}
 			}
 		}
-		return runTest(dataCollection);
 	}
 	
 	/**
@@ -156,9 +122,9 @@ public class MLP
 	}
 	
 	/**
-	 * String-representation of the neuronal network
+	 * String-representation of the neural network
 	 * 
-	 * @return An ascii presentation of the network's weights.
+	 * @return String presentation of the network's weights.
 	 */
 	@Override
 	public String toString() {
