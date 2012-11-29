@@ -1,6 +1,5 @@
-package org.jopenml.mlp;
+package org.jopenml.mlp.activationFunctions;
 
-import org.jopenml.mlp.activationFunctions.ActivationFunction;
 
 /**
  * This {@link ActivationFunction} simply returns the intput value. Therefor the derivation is always 1.
