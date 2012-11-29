@@ -11,9 +11,10 @@ import org.junit.Test;
 
 public class XORTest {
 	
-	private static final double BREAK_ON_ERROR_BELOW = .0001;
-	private static final int MAX_ITERATIONS = 1_000_000;
-	private static final double ETA = .01;
+	private static final double BREAK_ON_ERROR_BELOW = .01;
+	private static final int MAX_ITERATIONS = 1000;
+	private static final double MOMENTUM = 0;
+	private static final double ETA = .02;
 	
 	private MLP mlp;
 	private final Collection<Datum> data;
@@ -32,31 +33,21 @@ public class XORTest {
 	@Test
 	public void testTrainOnline() {
 		int iterations = 0;
-		while (mlp.trainOnline(data, ETA, 0) > BREAK_ON_ERROR_BELOW) {
+		while (mlp.trainOnline(data, ETA, MOMENTUM) > BREAK_ON_ERROR_BELOW) {
 			if (++iterations == MAX_ITERATIONS) {
 				break;
 			}
 		}
-		
-		testMapping(data, mlp);
 	}
 	
 	@Test
 	public void testTrainBatch() {
 		int iterations = 0;
-		while (mlp.trainBatch(data, 1, ETA, 0) > BREAK_ON_ERROR_BELOW) {
+		while (mlp.trainBatch(data, 1, ETA, MOMENTUM) > BREAK_ON_ERROR_BELOW) {
 			if (++iterations == MAX_ITERATIONS) {
+				System.err.println("break");
 				break;
 			}
-		}
-		
-		testMapping(data, mlp);
-	}
-	
-	private void testMapping(Collection<Datum> data, MLP mlp) {
-		for (final Datum datum : data) {
-			final double[] result = mlp.classify(datum.getData());
-			System.err.println("Target: " + datum.getTarget()[0] + " | Result: " + result[0]);
 		}
 	}
 	
