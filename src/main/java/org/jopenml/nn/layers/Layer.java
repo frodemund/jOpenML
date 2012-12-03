@@ -1,30 +1,28 @@
-package org.jopenml.mlp.layers;
+package org.jopenml.nn.layers;
 
 import java.io.Serializable;
 import java.util.Arrays;
 
-import org.jopenml.mlp.activationFunctions.ActivationFunction;
+import org.jopenml.nn.activationFunctions.ActivationFunction;
 
 /**
  * This object represents a layer of the neural network.
  */
-public class BiasedLayer
+public class Layer
 		implements Serializable {
 	
 	private static final long serialVersionUID = -4607204450973284028L;
 	
-	private BiasedLayer prevLayer;
+	private final Layer prevLayer;
 	
-	private double[][] weightMatrix;
-	private double[][] gradientMatrix;
-	private double[][] lastGradientMatrix;
+	private final double[][] weightMatrix;
+	private final double[][] gradientMatrix;
+	private final double[][] lastGradientMatrix;
 	
-	private ActivationFunction function;
+	private final ActivationFunction activationFunction;
 	
-	private double[] output;
-	double[] input = null;
-	private double bias;
-	double[] layerInput;
+	private double[] layerOutput;
+	private double[] layerInput;;
 	
 	/**
 	 * Constructor; Is initialized with the previous layer, activation function number of neurons and the bias
@@ -33,11 +31,8 @@ public class BiasedLayer
 	 * @param neurons Number of neurons.
 	 * @param function Activation function of this layer
 	 * @param bias The bias
-	 * @throws BadConfigException Is thrown in case of incorrect configuration
 	 */
-	public BiasedLayer(BiasedLayer prevLayer, int neurons, ActivationFunction function, double bias) {
-		
-		neurons++;
+	public Layer(Layer prevLayer, int neurons, ActivationFunction function) {
 		
 		// Tests configuration
 		if (neurons <= 0) {
@@ -45,12 +40,15 @@ public class BiasedLayer
 		}
 		
 		// Initializing variables
-		this.function = function;
-		this.bias = bias;
-		output = new double[neurons];
+		layerOutput = new double[neurons];
 		layerInput = new double[neurons];
+		activationFunction = function;
 		
 		if (prevLayer == null) {
+			this.prevLayer = null;
+			weightMatrix = null;
+			gradientMatrix = null;
+			lastGradientMatrix = null;
 			return;
 		}
 		
@@ -71,16 +69,14 @@ public class BiasedLayer
 	 * This function is to be used at the input layer and sets the input data.
 	 * 
 	 * @param input The input vector, that needs the same dimension as the layer.
-	 * @throws BadConfigException Is thrown in case of wrong configuration
 	 */
 	public void setInput(double[] input) {
-		if (output.length - 1 != input.length) {
+		if (layerOutput.length != input.length) {
 			throw new IllegalArgumentException("Provided array has wron length. (is " + input.length
-					+ ", but should be " + (output.length - 1) + ").");
+					+ ", but should be " + layerOutput.length + ").");
 		}
 		
-		input = Arrays.copyOf(input, input.length);
-		output = Arrays.copyOf(input, output.length);
+		layerInput = Arrays.copyOf(input, layerInput.length);
 	}
 	
 	/**
@@ -91,32 +87,28 @@ public class BiasedLayer
 	 *         network
 	 */
 	public double[] getOutput() {
-		// Recursion cancel
 		if (prevLayer == null) {
-			layerInput = output;
-			return output;
+			// beak condition
+			layerOutput = layerInput;
+			return layerOutput;
 		}
 		
-		input = prevLayer.getOutput();
+		layerInput = prevLayer.getOutput();
 		
 		// Generate the output
-		for (int h = 0; h < output.length - 1; h++) {
-			// Reset
-			output[h] = 0;
+		for (int h = 0; h < layerOutput.length; h++) {
+			double neuronOut = 0;
 			
 			// Multiply every output of the last Layer with the corresponding matrix and add it.
-			for (int i = 0; i < input.length; i++) {
-				output[h] += input[i] * weightMatrix[h][i];
+			for (int i = 0; i < layerInput.length; i++) {
+				neuronOut += layerInput[i] * weightMatrix[h][i];
 			}
 			
-			layerInput[h] = output[h];
 			// Use the activation function on the sum.
-			output[h] = function.compute(output[h]);
+			layerOutput[h] = activationFunction.compute(neuronOut);
 		}
 		
-		output[output.length - 1] = bias;
-		
-		return output;
+		return layerOutput;
 	}
 	
 	/**
@@ -125,7 +117,7 @@ public class BiasedLayer
 	 * @return Number of neurons
 	 */
 	public int getSize() {
-		return output.length;
+		return layerOutput.length;
 	}
 	
 	/**
@@ -134,34 +126,35 @@ public class BiasedLayer
 	 *            error of the previous layer will be calculated and passed to the next layer.
 	 * @throws BadConfigException if the error vector wrong is.
 	 */
-	public double backPropagate(double[] error) {
+	public void backPropagate(double[] error) {
 		if (prevLayer == null) {
-			return 0;
+			// break condition
+			return;
 		}
-		
-		double retVal = 0;
-		// init
-		final double[] preLayerError = new double[prevLayer.getSize()];
-		
+		alterGradient(error);
+		prevLayer.backPropagate(compurePreviousLayerError(error));
+	}
+	
+	private void alterGradient(double[] error) {
 		// alter gradient
 		for (int i = 0; i < gradientMatrix.length; i++) {
-			for (int h = 0; h < prevLayer.output.length; h++) {
-				gradientMatrix[i][h] += error[i] * prevLayer.output[h];
-				retVal += error[i] * prevLayer.output[h];
+			for (int h = 0; h < prevLayer.layerOutput.length; h++) {
+				gradientMatrix[i][h] += error[i] * prevLayer.layerOutput[h];
 			}
 		}
+	}
+	
+	private double[] compurePreviousLayerError(double[] error) {
+		final double[] preLayerError = new double[prevLayer.getSize()];
 		
-		// generate preLayerError
 		for (int i = 0; i < prevLayer.getSize(); i++) {
 			for (int h = 0; h < error.length; h++) {
 				preLayerError[i] += error[h] * weightMatrix[h][i];
 			}
 			
-			preLayerError[i] *= prevLayer.function.derivation(prevLayer.layerInput[i]);
+			preLayerError[i] *= prevLayer.activationFunction.derivation(prevLayer.layerOutput[i]);
 		}
-		
-		retVal /= gradientMatrix.length;
-		return retVal += prevLayer.backPropagate(preLayerError);
+		return preLayerError;
 	}
 	
 	/**
@@ -174,7 +167,7 @@ public class BiasedLayer
 			return;
 		}
 		
-		for (int i = 0; i < output.length; i++) {
+		for (int i = 0; i < layerOutput.length; i++) {
 			for (int h = 0; h < prevLayer.getSize(); h++) {
 				weightMatrix[i][h] -= eta * gradientMatrix[i][h];
 				gradientMatrix[i][h] = 0;
@@ -198,7 +191,7 @@ public class BiasedLayer
 		}
 		final double negMomentum = 1 - momentum;
 		
-		for (int i = 0; i < output.length; i++) {
+		for (int i = 0; i < layerOutput.length; i++) {
 			for (int h = 0; h < prevLayer.getSize(); h++) {
 				lastGradientMatrix[i][h] = eta
 						* (negMomentum * gradientMatrix[i][h] + momentum * lastGradientMatrix[i][h]);
@@ -208,15 +201,6 @@ public class BiasedLayer
 		}
 		
 		prevLayer.update(eta, momentum);
-	}
-	
-	/**
-	 * Returns the current Bias.
-	 * 
-	 * @return The current bias.
-	 */
-	public double getBias() {
-		return bias;
 	}
 	
 	/**
@@ -235,7 +219,7 @@ public class BiasedLayer
 			buffer.append("\t[" + i + "]");
 		}
 		
-		for (int i = 0; i < output.length; i++) {
+		for (int i = 0; i < layerOutput.length; i++) {
 			buffer.append("\nNeuron [" + i + "]");
 			for (int h = 0; h < prevLayer.getSize(); h++) {
 				buffer.append("\t" + weightMatrix[i][h]);
@@ -250,82 +234,10 @@ public class BiasedLayer
 	 * @return The activation function, that is used in this layer.
 	 */
 	public ActivationFunction getActivationFunction() {
-		return function;
+		return activationFunction;
 	}
 	
-	/**
-	 * This Function makes the layer to an autoencoder.
-	 * 
-	 * @param value This value will be used as input to all neurons of the previous layer and as targetvector.
-	 * @param maxIterations This parameter is an break condition for the learning process of this layer.
-	 * @param upperBound This parameter is an break condition for the learning process of this layer.
-	 * @param eta The used learning rate.
-	 * @return Training values for the adjacent layer.
-	 * @throws BadConfigException
-	 */
-	public double[] makeAutoencoder(double value, int maxIterations, double upperBound, double eta) {
-		
-		final double[] trainingValues = new double[getSize()];
-		Arrays.fill(trainingValues, value);
-		if (prevLayer == null) {
-			return trainingValues;
-		}
-		
-		// Input Data
-		final double[] lastLayerOutput = prevLayer.makeAutoencoder(value, maxIterations, upperBound, eta);
-		
-		// Remove the layer
-		final BiasedLayer prevLayer = this.prevLayer.prevLayer;
-		this.prevLayer.prevLayer = null;
-		
-		// Add the new layer
-		final BiasedLayer additionalLayer = new BiasedLayer(this, this.prevLayer.getSize() - 1,
-				this.prevLayer.getActivationFunction(), this.prevLayer.getBias());
-		
-		final double[] firstLayerinput = Arrays.copyOf(lastLayerOutput, lastLayerOutput.length - 1);
-		
-		if (prevLayer.getSize() - 1 != firstLayerinput.length) {
-			throw new IllegalStateException("Invalid input layer size!");
-		}
-		
-		// use output as new input
-		prevLayer.setInput(firstLayerinput);
-		
-		// train online
-		double out[] = null;
-		final double[] errVec = new double[additionalLayer.getSize()];
-		double overallError;
-		
-		for (int i = 0; i < maxIterations; i++) {
-			out = additionalLayer.getOutput();
-			
-			// calculate the arror at the output layer
-			for (int h = 0; h < errVec.length; h++) {
-				errVec[h] = out[h] - lastLayerOutput[h];
-			}
-			
-			overallError = 0;
-			for (final double e : errVec) {
-				overallError += Math.pow(e, 2);
-			}
-			if (overallError < (2 * upperBound)) {
-				break;
-			}
-			
-			// Backpropagate the error
-			additionalLayer.backPropagate(errVec);
-			
-			// adjust weights
-			additionalLayer.update(eta, 0);
-		}
-		
-		// restore layer
-		this.prevLayer.prevLayer = prevLayer;
-		
-		return getOutput();
-	}
-	
-	public void setPreviousLayer(BiasedLayer layer) {
-		prevLayer = layer;
+	public double[] getLayerInput() {
+		return layerInput;
 	}
 }

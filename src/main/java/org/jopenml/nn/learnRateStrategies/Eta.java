@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.jopenml.mlp.learnRateStrategies;
+package org.jopenml.nn.learnRateStrategies;
 
 /**
  * This interface enables the use of diverse learning rate modifications and is implemented by {@link DynamicEtaAdjustment},

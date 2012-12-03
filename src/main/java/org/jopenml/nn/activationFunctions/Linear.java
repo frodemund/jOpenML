@@ -1,4 +1,4 @@
-package org.jopenml.mlp.activationFunctions;
+package org.jopenml.nn.activationFunctions;
 
 
 /**

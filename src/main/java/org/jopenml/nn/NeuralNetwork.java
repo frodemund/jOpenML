@@ -1,28 +1,28 @@
-package org.jopenml.mlp;
+package org.jopenml.nn;
 
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 
-import org.jopenml.mlp.layers.Layer;
+import org.jopenml.nn.layers.Layer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * This class represents the MLP and makes heavy use of the class {@link Layer}.
  */
-public class MLP
+public class NeuralNetwork
 		implements Serializable {
 	
 	private static final long serialVersionUID = -5212835785366190139L;
 	private final Layer inputLayer;
 	private final Layer outputLayer;
 	
-	private static final Logger LOGGER = LoggerFactory.getLogger(MLP.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(NeuralNetwork.class);
 	
-	public MLP(List<Layer> layers) {
+	public NeuralNetwork(List<Layer> layers) {
 		if (LOGGER.isTraceEnabled()) {
-			LOGGER.trace("Creating new MLP with " + layers.size() + " layers.");
+			LOGGER.trace("Creating new neural network with " + layers.size() + " layers.");
 		}
 		inputLayer = layers.get(0);
 		outputLayer = layers.get(layers.size() - 1);

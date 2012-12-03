@@ -1,4 +1,4 @@
-package org.jopenml.mlp.activationFunctions;
+package org.jopenml.nn.activationFunctions;
 
 /**
  * This object implements the hyperbolic tangent (value range [-1,1]) and the interface {@link ActivationFunction}.
