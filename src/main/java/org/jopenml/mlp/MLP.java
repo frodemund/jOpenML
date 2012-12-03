@@ -5,6 +5,8 @@ import java.util.Collection;
 import java.util.List;
 
 import org.jopenml.mlp.layers.Layer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class represents the MLP and makes heavy use of the class {@link Layer}.
@@ -16,7 +18,12 @@ public class MLP
 	private final Layer inputLayer;
 	private final Layer outputLayer;
 	
+	private static final Logger LOGGER = LoggerFactory.getLogger(MLP.class);
+	
 	public MLP(List<Layer> layers) {
+		if (LOGGER.isDebugEnabled()) {
+			
+		}
 		inputLayer = layers.get(0);
 		outputLayer = layers.get(layers.size() - 1);
 	}
