@@ -1,4 +1,4 @@
-package org.jopenml.mlp;
+package org.jopenml.nn;
 
 import java.util.Arrays;
 

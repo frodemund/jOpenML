@@ -1,4 +1,4 @@
-package org.jopenml.mlp.learnRateStrategies;
+package org.jopenml.nn.learnRateStrategies;
 
 /**
  * This object adjusts the learning rate in against last computed error and implements the interface {@link Eta}

@@ -1,11 +1,13 @@
-package org.jopenml.mlp;
+package org.jopenml.nn;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.jopenml.mlp.activationFunctions.Sigmoid;
-import org.jopenml.mlp.layers.Layer;
+import org.jopenml.nn.Datum;
+import org.jopenml.nn.NeuralNetwork;
+import org.jopenml.nn.activationFunctions.Sigmoid;
+import org.jopenml.nn.layers.Layer;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -16,7 +18,7 @@ public class XORTest {
 	private static final double MOMENTUM = 0;
 	private static final double ETA = .02;
 	
-	private MLP mlp;
+	private NeuralNetwork mlp;
 	private final Collection<Datum> data;
 	private final List<Layer> layers;
 	
@@ -27,7 +29,7 @@ public class XORTest {
 	
 	@Before
 	public void initMLP() {
-		mlp = new MLP(layers);
+		mlp = new NeuralNetwork(layers);
 	}
 	
 	@Test

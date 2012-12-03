@@ -1,4 +1,4 @@
-package org.jopenml.mlp.activationFunctions;
+package org.jopenml.nn.activationFunctions;
 
 /**
  * This class implements {@link ActivationFunction} with a sigmoid function. The range is from 0 to 1.
