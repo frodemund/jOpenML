@@ -21,8 +21,8 @@ public class MLP
 	private static final Logger LOGGER = LoggerFactory.getLogger(MLP.class);
 	
 	public MLP(List<Layer> layers) {
-		if (LOGGER.isDebugEnabled()) {
-			
+		if (LOGGER.isTraceEnabled()) {
+			LOGGER.trace("Creating new MLP with " + layers.size() + " layers.");
 		}
 		inputLayer = layers.get(0);
 		outputLayer = layers.get(layers.size() - 1);
