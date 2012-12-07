@@ -89,8 +89,8 @@ public class NeuralNetwork
 	/**
 	 * This method performs a test using delivered data.
 	 * 
-	 * @param dataCollection The data, tu be used for the test.
-	 * @return The test error. If an error occurse, returns 0.
+	 * @param dataCollection The data, to be used for the test.
+	 * @return The test error. If an error occur, returns 0.
 	 */
 	public double runTest(Collection<Datum> dataCollection) {
 		double err = 0;

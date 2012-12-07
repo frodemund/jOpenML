@@ -17,11 +17,11 @@ public class Datum {
 	}
 	
 	public double[] getData() {
-		return Arrays.copyOf(data, data.length);
+		return data;
 	}
 	
 	public double[] getTarget() {
-		return Arrays.copyOf(mapping, mapping.length);
+		return mapping;
 	}
 	
 	@Override
