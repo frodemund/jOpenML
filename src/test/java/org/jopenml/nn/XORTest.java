@@ -9,12 +9,13 @@ import org.jopenml.nn.activationFunctions.Sigmoid;
 import org.jopenml.nn.layers.Layer;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class XORTest {
 	
-	private static final double BREAK_ON_ERROR_BELOW = .001;
-	private static final int MAX_ITERATIONS = 1_000_000;
+	private static final double BREAK_ON_ERROR_BELOW = .01;
+	private static final int MAX_ITERATIONS = 10_000;
 	private static final double MOMENTUM = 0;
 	private static final double ETA = .02;
 	
@@ -62,12 +63,11 @@ public class XORTest {
 		
 		// one hidden Layer
 		layers.add(new Layer(layers.get(0), 5, af));
-		layers.add(new Layer(layers.get(1), 5, af));
+		layers.add(new Layer(layers.get(1), 1, af));
 		layers.add(new Layer(layers.get(2), 5, af));
-		layers.add(new Layer(layers.get(3), 5, af));
 		
 		// output layer
-		layers.add(new Layer(layers.get(4), 1, af));
+		layers.add(new Layer(layers.get(3), 1, af));
 		return layers;
 	}
 	
@@ -85,6 +85,7 @@ public class XORTest {
 		return data;
 	}
 	
+	@Ignore
 	@After
 	public void printTrainingSuccess() {
 		System.err.println("target 1, value: " + mlp.classify(new double[] { 1, 0 })[0]);
