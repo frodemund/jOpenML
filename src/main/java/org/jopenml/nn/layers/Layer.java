@@ -93,19 +93,19 @@ public class Layer
 			return layerOutput;
 		}
 		
-		layerInput = prevLayer.getOutput();
+		double[] prevOutput = prevLayer.getOutput();
 		
 		// Generate the output
 		for (int h = 0; h < layerOutput.length; h++) {
-			double neuronOut = 0;
+			layerInput[h] = 0;
 			
 			// Multiply every output of the last Layer with the corresponding matrix and add it.
-			for (int i = 0; i < layerInput.length; i++) {
-				neuronOut += layerInput[i] * weightMatrix[h][i];
+			for (int i = 0; i < prevOutput.length; i++) {
+				layerInput[h] += prevOutput[i] * weightMatrix[h][i];
 			}
 			
 			// Use the activation function on the sum.
-			layerOutput[h] = activationFunction.compute(neuronOut);
+			layerOutput[h] = activationFunction.compute(layerInput[h]);
 		}
 		
 		return layerOutput;
